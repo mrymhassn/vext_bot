@@ -9,9 +9,9 @@ for var in ["VEXT_API_KEY", "CHANNEL_TOKEN", "ENDPOINT_ID"]:
 # ---- Sidebar for Environment Variables ----
 st.sidebar.header("🔐 VextApp Credentials")
 
-st.session_state["VEXT_API_KEY"] = st.sidebar.text_input("API Key", type="password")
-st.session_state["CHANNEL_TOKEN"] = st.sidebar.text_input("Channel Token")
-st.session_state["ENDPOINT_ID"] = st.sidebar.text_input("Endpoint ID")
+st.session_state["VEXT_API_KEY"] = st.sidebar.text_input("API Key", type="password", value=st.session_state["VEXT_API_KEY"])
+st.session_state["CHANNEL_TOKEN"] = st.sidebar.text_input("Channel Token", value=st.session_state["CHANNEL_TOKEN"])
+st.session_state["ENDPOINT_ID"] = st.sidebar.text_input("Endpoint ID", value=st.session_state["ENDPOINT_ID"])
 
 # ---- Initialize message history ----
 if "messages" not in st.session_state:
@@ -51,6 +51,7 @@ def invoke_vextapp(message: str, env: str = "dev") -> dict:
 # ---- Display Chat Messages ----
 st.title("🧠 VextApp Q&A Assistant")
 
+# Display chat history
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
@@ -59,23 +60,34 @@ for msg in st.session_state.messages:
 user_message = st.chat_input("Ask your question...")
 
 if user_message:
-    # Append user's message
+    # Display user message immediately
+    with st.chat_message("user"):
+        st.markdown(user_message)
+    
+    # Add user message to history
     st.session_state.messages.append({"role": "user", "content": user_message})
 
-    # Call VextApp API
-    with st.spinner("Contacting VextApp..."):
-        response = invoke_vextapp(user_message)
-        st.write(response['text'])
-
-    # Handle response
-    if "error" in response:
-        bot_reply = f"❌ Error: {response['error']}"
-        if response.get("details"):
-            bot_reply += f"\n\n```\n{response['details']}\n```"
-    else:
-        # If the API response is a dict, convert to string or extract relevant part
-        bot_reply = response.get("response") or str(response)
-
-    # Append bot's message
+    # Call VextApp API and display response
+    with st.chat_message("assistant"):
+        with st.spinner("Thinking..."):
+            response = invoke_vextapp(user_message)
+        
+        # Handle response
+        if "error" in response:
+            bot_reply = f"❌ Error: {response['error']}"
+            if response.get("details"):
+                bot_reply += f"\n\n```\n{response['details']}\n```"
+        else:
+            # Extract the actual response from the API
+            bot_reply = response.get("response") or response.get("message") or str(response)
+        
+        # Display the response
+        st.markdown(bot_reply)
+    
+    # Add bot response to history
     st.session_state.messages.append({"role": "assistant", "content": bot_reply})
 
+# ---- Optional: Clear Chat Button ----
+if st.sidebar.button("🗑️ Clear Chat History"):
+    st.session_state.messages = []
+    st.rerun()
