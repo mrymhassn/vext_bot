@@ -79,8 +79,8 @@ if user_message:
                 bot_reply += f"\n\n```\n{response['details']}\n```"
         else:
             # Extract the actual response from the API
-            bot_reply = response.get("response") or response.get("message") or str(response)
-        
+            bot_reply = response.get("response") or response.get("message") or response.get("text")
+            
         # Display the response
         st.markdown(bot_reply)
     
