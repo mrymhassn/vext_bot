@@ -65,6 +65,7 @@ if user_message:
     # Call VextApp API
     with st.spinner("Contacting VextApp..."):
         response = invoke_vextapp(user_message)
+        st.write(response['text'])
 
     # Handle response
     if "error" in response:
