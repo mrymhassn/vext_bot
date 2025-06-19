@@ -21,9 +21,9 @@ if "messages" not in st.session_state:
 
 # ---- API Call Function (uses session_state) ----
 def invoke_vextapp(message: str, env: str = "dev") -> dict:
-    api_token = st.session_state.get("VEXT_API_KEY")
-    channel_token = st.session_state.get("CHANNEL_TOKEN")
-    endpoint_id = st.session_state.get("ENDPOINT_ID")
+    api_token = st.secrets['VEXT_API_KEY']
+    channel_token = random_id
+    endpoint_id = st.secrets['ENDPOINT_ID']
 
     if not api_token or not channel_token or not endpoint_id:
         return {"error": "Missing API credentials. Please fill in all fields in the sidebar."}
