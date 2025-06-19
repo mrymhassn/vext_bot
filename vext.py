@@ -1,6 +1,8 @@
 import streamlit as st
-import requests
+import requests#
+from uuid import uuid4
 
+random_id = str(uuid4().hex[:10])
 # ---- Initialize session state for keys ----
 for var in ["VEXT_API_KEY", "CHANNEL_TOKEN", "ENDPOINT_ID"]:
     if var not in st.session_state:
@@ -9,9 +11,9 @@ for var in ["VEXT_API_KEY", "CHANNEL_TOKEN", "ENDPOINT_ID"]:
 # ---- Sidebar for Environment Variables ----
 st.sidebar.header("🔐 VextApp Credentials")
 
-st.session_state["VEXT_API_KEY"] = st.sidebar.text_input("API Key", type="password", value=st.session_state["VEXT_API_KEY"])
-st.session_state["CHANNEL_TOKEN"] = st.sidebar.text_input("Channel Token", value=st.session_state["CHANNEL_TOKEN"])
-st.session_state["ENDPOINT_ID"] = st.sidebar.text_input("Endpoint ID", value=st.session_state["ENDPOINT_ID"])
+st.session_state["VEXT_API_KEY"] = st.secrets['VEXT_API_KEY']
+st.session_state["CHANNEL_TOKEN"] = random_id
+st.session_state["ENDPOINT_ID"] = st.secrets['ENDPOINT_ID']
 
 # ---- Initialize message history ----
 if "messages" not in st.session_state:
@@ -91,3 +93,5 @@ if user_message:
 if st.sidebar.button("🗑️ Clear Chat History"):
     st.session_state.messages = []
     st.rerun()
+
+    
